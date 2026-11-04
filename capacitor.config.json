@@ -1,0 +1,6 @@
+{
+  "appId": "id.arjawinangun.toko",
+  "appName": "AWD Toko",
+  "webDir": "dist",
+  "android": { "allowMixedContent": false }
+}

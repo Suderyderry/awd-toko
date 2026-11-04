@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <script>
+      // Guard for browser extensions intercepting window.fetch
+      (function() {
+        try {
+          var _orig = window.fetch;
+          var _curr = typeof _orig === 'function' ? _orig.bind(window) : _orig;
+          Object.defineProperty(window, 'fetch', {
+            get: function() { return _curr; },
+            set: function(v) { _curr = v; },
+            configurable: true,
+            enumerable: true
+          });
+        } catch (e) {}
+      })();
+    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AWD Mitra Merchant - Portal Khusus Pemilik Toko & Warung</title>
+    <meta name="description" content="Portal & Aplikasi Kasir Toko Mitra Arjawinangun Delivery (AWD) untuk manajemen pesanan, produk, variasi, etalase, cetak struk thermal, dan dompet digital." />
+    <meta property="og:title" content="AWD Mitra Merchant - Portal Khusus Pemilik Toko & Warung" />
+    <meta property="og:description" content="Portal & Aplikasi Kasir Toko Mitra Arjawinangun Delivery (AWD) untuk manajemen pesanan, produk, variasi, etalase, cetak struk thermal, dan dompet digital." />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" type="image/png" href="/assets/aistudio/Designer_b056b7f0.png" />
+    <meta name="theme-color" content="#2563eb" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+
