@@ -16,7 +16,7 @@ jobs:
           distribution: temurin
           java-version: 21
       - name: Pasang dependensi
-        run: npm install
+        run: npm install --legacy-peer-deps
       - name: Build web
         run: npm run build
       - name: Buat proyek Android (Capacitor)
