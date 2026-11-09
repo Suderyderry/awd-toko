@@ -593,12 +593,13 @@ begin
   if awd_mitra_id() is not null then return awd_mitra_profil(); end if;
   if v_nama = '' then raise exception 'Nama toko wajib diisi'; end if;
   select email into v_email from auth.users where id = auth.uid();
+  if v_email like '%@toko.awd.app' then v_email := ''; end if;   -- login lewat nomor HP: email buatan tidak ditampilkan
   select 'M' || (coalesce(max(nullif(regexp_replace(id, '\D', '', 'g'), '')::bigint), 0) + 1) into v_id from pengguna;
   insert into pengguna (id, tipe, nama, status, data, auth_id) values (v_id, 'merchant', v_nama, 'Ditangguhkan',
     jsonb_build_object('id', v_id, 't', 'merchant', 'name', v_nama, 'sub', left(coalesce(a->>'pemilik',''), 80), 'area', '', 'n', 0, 'r', '0.0',
       's', 'Ditangguhkan', 'adr', left(coalesce(a->>'adr',''), 200), 'hp', left(coalesce(a->>'hp',''), 20), 'plate', '',
       'jn', to_char(now(), 'Mon YYYY'),
-      'x', jsonb_build_object('email', coalesce(v_email,''), 'login', 'Kata sandi', 'gps', '', 'kat', left(coalesce(a->>'kat',''), 60),
+      'x', jsonb_build_object('email', coalesce(v_email,''), 'login', 'Nomor HP + kata sandi', 'gps', '', 'kat', left(coalesce(a->>'kat',''), 60),
         'lay', left(coalesce(a->>'lay',''), 60), 'desc', '', 'fee', '', 'eta', '', 'jam', '08.00-21.00',
         'ktp', '', 'ktpf', '', 'bank', '', 'rek', '', 'an', '')),
     auth.uid());

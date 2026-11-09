@@ -14,6 +14,11 @@ GitHub Actions. Terhubung ke Supabase dan panel admin AWD (https://suderyderry.g
 Pesanan masuk (dering, getar, notifikasi), terima/tolak/siap, lacak driver di peta, kelola produk + diskon
 (persen/Rp, minimal jumlah pcs), tandai habis, jadwal buka tutup, chat pelanggan, statistik, saldo dan pencairan.
 
+## Login
+Masuk memakai **nomor HP + kata sandi** (akun Supabase dibuat dari nomor HP: `08xxxx@toko.awd.app`).
+SEMENTARA (uji coba): nomor HP bebas + kata sandi `123456` langsung masuk, akun dibuat otomatis. Untuk produksi ubah
+`TEMP_PW` di `www/index.html` menjadi `''` (kosong) dan atur ulang kata sandi akun uji.
+
 ## Langkah
 1. Supabase > SQL Editor: jalankan `supabase/1_bersihkan_database.sql` (jika mengulang) lalu `supabase/2_pasang_database.sql`.
 2. Supabase > Authentication > Providers > Email: Allow new users to sign up = ON, Confirm email = OFF.

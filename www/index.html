@@ -31,6 +31,7 @@ nav button{flex:1;border:0;background:none;color:var(--m);font:inherit;font-size
 @keyframes pu{0%{box-shadow:0 0 0 0 rgba(37,99,235,.5)}100%{box-shadow:0 0 0 26px rgba(37,99,235,0)}}
 .rov{position:fixed;inset:0;background:rgba(5,11,26,.8);z-index:60;display:flex;align-items:center;justify-content:center;padding:20px}.rbx{background:var(--c);border-radius:18px;padding:20px;width:100%;max-width:340px;text-align:center}.rbl{font-size:40px;width:76px;height:76px;line-height:76px;border-radius:50%;margin:0 auto 10px;background:var(--bg);animation:pu 1.2s infinite}
 .mapb{position:relative;height:210px;border-radius:12px;overflow:hidden;background:#dbe3f0}
+.av{width:100%;min-height:100vh;min-height:100dvh;display:flex;flex-direction:column}.av .w{flex:1;width:100%}.av .card{margin-bottom:30px}.ftb{margin-top:auto;padding:12px 0 calc(16px + env(safe-area-inset-bottom,0px))}
 </style></head><body><div id="app"></div>
 <script>
 /* ===== Konfigurasi Supabase (kosong = mode demo). Isi sama dengan AWD Pelanggan / Panel Admin ===== */
@@ -39,7 +40,7 @@ let LL=['AWD Food','AWD Warung','AWD Pasar & UMKM','AWD Obat-obatan'],KL=['Makan
 const LAYL=()=>LL.filter(n=>!/kirim|kurir|pulsa|kuota/i.test(n)),KATL=()=>KL;
 const $=document.getElementById('app'),rp=n=>'Rp'+(+n||0).toLocaleString('id-ID'),E=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const live=()=>!!(CFG.url&&CFG.key);let TK=null;
-const CF={nama:'AWD Toko',sl:'Kelola toko dan pesananmu',c1:'#FFC400',c2:'#FFA000',nc:'#16130a',logo:'',mn:14,ft:'by. wong Arjawinangun 2026'};
+const CF={nama:'AWD Toko',sl:'Kelola toko dan pesananmu',c1:'#FFC400',c2:'#FFA000',nc:'#16130a',logo:'',mn:14,ft:'by. Wong Arjawinangun 2026'};
 function applyCF(){const r=document.documentElement.style;r.setProperty('--c1',CF.c1);r.setProperty('--c2',CF.c2);r.setProperty('--nc',CF.nc);r.setProperty('--mn',(+CF.mn||0)+'px')}
 async function loadCF(){if(!live())return;try{const r=await fetch(CFG.url+'/rest/v1/awd_pengaturan?kunci=in.(tampilan_merchant,layanan,kategori_produk)&select=kunci,data',{headers:{apikey:CFG.key}});const j=await r.json();if(Array.isArray(j))j.forEach(x=>{const d=x.data||{};if(x.kunci==='tampilan_merchant')Object.assign(CF,d);else if(x.kunci==='layanan'&&Array.isArray(d.items)&&d.items.length)LL=d.items.filter(i=>i.on!==0).map(i=>i.n);else if(x.kunci==='kategori_produk'&&Array.isArray(d.items)&&d.items.length)KL=d.items.filter(i=>i.on!==0).map(i=>i.n)})}catch(e){}applyCF()}
 const IM=(e,c)=>'data:image/svg+xml;utf8,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600"><rect width="600" height="600" fill="'+c+'"/><text x="300" y="390" font-size="280" text-anchor="middle">'+e+'</text></svg>');
@@ -71,10 +72,10 @@ case'awd_mitra_saldo':return{saldo:M.saldo,riwayat:M.riw};
 case'toko_chat_daftar':case'toko_chat_baca':return[];case'toko_chat_kirim':return 1;
 case'awd_mitra_cair':M.saldo-=a.jumlah;M.riw.unshift({t:'Pencairan ke '+a.bank+' (menunggu)',v:-a.jumlah});return 1}}
 async function load(){const[p,o,s,st]=await Promise.all([call('awd_mitra_produk'),call('awd_mitra_pesanan'),call('awd_mitra_saldo'),call('awd_mitra_statistik')]);S.stat=st;S.produk=p||[];S.pesanan=o||[];chk(S.pesanan,true);S.saldo=s.saldo;S.riw=s.riwayat||[]}
-async function boot(t){try{S.toko=await call('awd_mitra_profil');if(!S.toko)return toast('Akun belum terdaftar sebagai mitra');S.user=1;await load();S.tab='home';R();startPoll()}catch(e){toast(e.message)}}
+async function boot(t){try{S.toko=await call('awd_mitra_profil');if(!S.toko){S.nopro=true;S.user=0;S.auth='reg';R();return toast('Lengkapi data toko untuk mendaftar')}S.nopro=false;S.user=1;await load();S.tab='home';R();startPoll()}catch(e){toast(e.message)}}
 /* ===== Notifikasi pesanan masuk: lonceng + dering + getar ===== */
 let AC=null,RT=null,RS=null,PI=null,SI2=null,CI=null,SIG='';
-function logout(){TK=null;S.user=null;S.cc=null;S.ct=null;clearSes();clearInterval(PI);clearInterval(SI2);clearInterval(CI);PI=null;stopRing();R()}
+function logout(){TK=null;S.user=null;S.nopro=false;S.hp='';S.auth='login';S.cc=null;S.ct=null;clearSes();clearInterval(PI);clearInterval(SI2);clearInterval(CI);PI=null;stopRing();R()}
 function unlock(){try{AC=AC||new(window.AudioContext||window.webkitAudioContext)();if(AC.state==='suspended')AC.resume()}catch(e){}}
 document.addEventListener('pointerdown',unlock);
 function beep(){if(!AC||!S.snd)return;const t=AC.currentTime;[440,480].forEach(f=>{const o=AC.createOscillator(),g=AC.createGain();o.type='sine';o.frequency.value=f;g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.35,t+.05);g.gain.setValueAtTime(.35,t+.9);g.gain.exponentialRampToValueAtTime(.0001,t+1);o.connect(g);g.connect(AC.destination);o.start(t);o.stop(t+1.05)})}
@@ -92,17 +93,38 @@ function ringV(){const o=S.ring;return `<div class="rov"><div class="rbx"><div c
 function notifV(){const l=S.pesanan.filter(o=>o.s==='Baru');return tp('Notifikasi',"S.sub=null;R()")+`<div class="w"><div class="card"><b>Nada dering</b><div class="m">Mengikuti pengaturan HP (suara notifikasi sistem, volume, dan mode getar/senyap).</div></div><button class="btn o b" style="margin-bottom:10px" onclick="unlock();ring({id:'ORD-TES',c:'Uji dering',p:0,items:[]})">Tes dering</button><h2>Pesanan baru (${l.length})</h2>${l.map(o=>`<div class="card"><div class="r sp"><b>${E(o.id)}</b><b>${rp(o.p)}</b></div><div class="m">${E(o.c)}</div><div style="margin:6px 0">${(o.items||[]).map(i=>`${i.q}× ${E(i.n)}`).join(', ')}</div><div class="r" style="justify-content:flex-end"><button class="btn x s" onclick="ps('${o.id}','Batal')">Tolak</button><button class="btn s" onclick="ps('${o.id}','Diproses')">Terima</button></div></div>`).join('')||'<div class="card m">Tidak ada pesanan baru.</div>'}</div>`}
 /* ===== Autentikasi ===== */
 const v=id=>(document.getElementById(id)||{}).value||'';
-async function masuk(){unlock();try{if(live()){const j=await auth('token?grant_type=password',{email:v('em'),password:v('pw')});TK=j.access_token;saveSes(j)}else DM.toko=DM.toko||{id:'M1',nama:'Warung Berkah Arja',status:'Buka',lay:'AWD Food',kat:'Rumah Makan',adr:'Jl. Raya Arjawinangun No. 12',hp:'081234567890',pemilik:'Bu Ratna',buka:true,jam:{auto:false,buka:'08:00',tutup:'21:00'}};await boot()}catch(e){toast(e.message)}}
-async function daftar(){unlock();const r={nama:v('rn').trim(),pemilik:v('ro').trim(),hp:v('rh').trim(),adr:v('ra').trim(),kat:v('rk').trim()||S.reg.lay,lay:S.reg.lay};
- if(!r.nama||!r.pemilik||!r.adr)return toast('Nama toko, pemilik, dan alamat wajib diisi');if(!/^08\d{8,12}$/.test(r.hp))return toast('Nomor HP tidak valid (contoh 081234567890)');
- try{if(live()){if(v('pw').length<8)return toast('Kata sandi minimal 8 karakter');const j=await auth('signup',{email:v('em'),password:v('pw')});TK=j.access_token;saveSes(j);if(!TK)return toast('Cek email untuk verifikasi, lalu masuk')}
- await call('awd_mitra_daftar',r);toast('Pendaftaran terkirim. Toko aktif setelah disetujui admin.');await boot()}catch(e){toast(e.message)}}
+/* SEMENTARA (uji coba): nomor HP bebas + kata sandi 123456 langsung masuk; akun dibuat otomatis bila belum ada.
+   Untuk produksi: ubah TEMP_PW menjadi '' lalu atur ulang kata sandi akun uji. */
+const TEMP_PW='123456';
+const normHP=x=>{let d=String(x||'').replace(/\D/g,'');if(d.startsWith('62'))d='0'+d.slice(2);else if(d&&!d.startsWith('0'))d='0'+d;return d},hpMail=x=>normHP(x)+'@toko.awd.app';
+async function masuk(){unlock();const hp=normHP(v('lh')),pw=v('pw');
+ try{if(live()){
+   if(!/^0\d{8,13}$/.test(hp))return toast('Masukkan nomor HP yang valid (contoh 081234567890)');
+   if(!pw)return toast('Masukkan kata sandi');
+   let j;
+   try{j=await auth('token?grant_type=password',{email:hpMail(hp),password:pw})}
+   catch(e){
+     if(!(TEMP_PW&&pw===TEMP_PW))throw new Error('Nomor HP atau kata sandi salah');
+     try{j=await auth('signup',{email:hpMail(hp),password:pw})}catch(e2){throw new Error('Nomor ini sudah terdaftar dengan kata sandi lain')}
+     if(!j.access_token){try{j=await auth('token?grant_type=password',{email:hpMail(hp),password:pw})}catch(e3){throw new Error('Akun dibuat, tetapi Supabase meminta konfirmasi email. Matikan "Confirm email" di Authentication > Providers > Email.')}}
+   }
+   TK=j.access_token;saveSes(j);S.hp=hp
+ }else DM.toko=DM.toko||{id:'M1',nama:'Warung Berkah Arja',status:'Buka',lay:'AWD Food',kat:'Rumah Makan',adr:'Jl. Raya Arjawinangun No. 12',hp:'081234567890',pemilik:'Bu Ratna',buka:true,jam:{auto:false,buka:'08:00',tutup:'21:00'}};await boot()}catch(e){toast(e.message)}}
+async function daftar(){unlock();const r={nama:v('rn').trim(),pemilik:v('ro').trim(),hp:normHP(v('rh')),adr:v('ra').trim(),kat:v('rk').trim()||S.reg.lay,lay:S.reg.lay};
+ if(!r.nama||!r.pemilik||!r.adr)return toast('Nama toko, pemilik, dan alamat wajib diisi');
+ if(!/^08\d{8,12}$/.test(r.hp))return toast('Nomor HP tidak valid (contoh 081234567890)');
+ try{if(live()&&!TK){const pw=v('rpw');if(pw.length<6)return toast('Kata sandi minimal 6 karakter');
+   let j;try{j=await auth('signup',{email:hpMail(r.hp),password:pw})}catch(e){throw new Error('Nomor HP ini sudah terdaftar. Silakan masuk.')}
+   if(!j.access_token){try{j=await auth('token?grant_type=password',{email:hpMail(r.hp),password:pw})}catch(e3){throw new Error('Supabase meminta konfirmasi email. Matikan "Confirm email" di Authentication > Providers > Email.')}}
+   TK=j.access_token;saveSes(j);S.hp=r.hp}
+  await call('awd_mitra_daftar',r);S.nopro=false;toast('Pendaftaran terkirim. Toko aktif setelah disetujui admin.');await boot()}catch(e){toast(e.message)}}
 function pickLay(l){S.reg={...S.reg,lay:l};}
-function authV(){const L=S.auth==='login';return `<header style="text-align:center;padding:36px 16px">${CF.logo?`<img src="${E(CF.logo)}" style="width:64px;height:64px;border-radius:16px;object-fit:cover">`:'<div style="font-size:44px">🏪</div>'}<h1>${E(CF.nama)}</h1><p class="m" style="opacity:.8">${E(CF.sl)}</p></header><div class="w up"><div class="card">
- <div class="r" style="margin-bottom:10px"><button class="btn ${L?'':'o'} f" onclick="S.auth='login';R()">Masuk</button><button class="btn ${L?'o':''} f" onclick="S.auth='reg';R()">Daftar Mitra</button></div>
- ${L?'':`<label>Nama toko *</label><input id="rn"><label>Nama pemilik *</label><input id="ro"><label>Nomor HP *</label><input id="rh" inputmode="numeric" placeholder="081234567890"><label>Alamat toko *</label><input id="ra"><label>Kategori usaha</label><input id="rk" placeholder="Contoh: Rumah Makan, Apotek"><label>Layanan yang tersedia *</label><div class="lay">${LAYL().map(l=>`<label><input type="radio" name="ly" ${S.reg.lay===l?'checked':''} onchange="pickLay('${l}')">${l}</label>`).join('')}</div>`}
- ${live()||!L?`<label>Email</label><input id="em" type="email"><label>Kata sandi</label><input id="pw" type="password">`:'<p class="m" style="margin-bottom:10px">Mode demo: tekan Masuk untuk mencoba tanpa akun.</p>'}
- <button class="btn b" onclick="${L?'masuk()':'daftar()'}">${L?'Masuk':'Kirim Pendaftaran'}</button></div></div>`}
+function authV(){const L=S.auth==='login',np=!!S.nopro;return `<div class="av"><header style="${hs()};text-align:center;padding:36px 16px">${CF.logo?`<img src="${E(CF.logo)}" style="width:64px;height:64px;border-radius:16px;object-fit:cover">`:'<div style="font-size:44px">🏪</div>'}<h1>${E(CF.nama)}</h1><div style="text-align:center">${sl()}</div></header><div class="w up"><div class="card">
+ ${np?`<p class="m" style="margin-bottom:10px">Akun <b>${E(S.hp||'')}</b> belum terdaftar sebagai toko. Lengkapi data di bawah, lalu kirim pendaftaran.</p>`:`<div class="r" style="margin-bottom:10px"><button class="btn ${L?'':'o'} f" onclick="S.auth='login';R()">Masuk</button><button class="btn ${L?'o':''} f" onclick="S.auth='reg';R()">Daftar Mitra</button></div>`}
+ ${L?'':`<label>Nama toko *</label><input id="rn"><label>Nama pemilik *</label><input id="ro"><label>Nomor HP *</label><input id="rh" type="tel" inputmode="numeric" placeholder="081234567890" value="${E(S.hp||'')}" ${np?'readonly':''}><label>Alamat toko *</label><input id="ra"><label>Kategori usaha</label><input id="rk" placeholder="Contoh: Rumah Makan, Apotek"><label>Layanan yang tersedia *</label><div class="lay">${LAYL().map(l=>`<label><input type="radio" name="ly" ${S.reg.lay===l?'checked':''} onchange="pickLay('${l}')">${l}</label>`).join('')}</div>`}
+ ${L?`<label>Nomor HP</label><input id="lh" type="tel" inputmode="numeric" placeholder="081234567890" autocomplete="username"><label>Kata sandi</label><input id="pw" type="password" autocomplete="current-password">${TEMP_PW&&live()?`<p class="m" style="margin:8px 0 0">Sementara: masuk dengan nomor HP bebas dan kata sandi <b>${TEMP_PW}</b>.</p>`:''}`:(np||!live()?'':`<label>Kata sandi (minimal 6 karakter)</label><input id="rpw" type="password" autocomplete="new-password">`)}
+ ${!live()&&L?'<p class="m" style="margin-bottom:10px">Mode demo: tekan Masuk untuk mencoba tanpa akun.</p>':''}
+ <button class="btn b" style="margin-top:12px" onclick="${L?'masuk()':'daftar()'}">${L?'Masuk':'Kirim Pendaftaran'}</button>${np?`<button class="btn o b" style="margin-top:8px" onclick="logout()">Keluar</button>`:''}</div></div><div class="ft ftb">${E(CF.ft)}</div></div>`}
 /* ===== Produk ===== */
 const hf=p=>p.dc?Math.max(0,p.dt==='%'?Math.round(p.h*(1-p.dv/100)):p.h-p.dv):p.h;
 const nextKode=()=>{const pre=String((S.toko.lay||'AWD TOKO').split(' ')[1]||'TOKO').slice(0,4).toUpperCase();let n=S.produk.length+1,k;do k=pre+'-'+String(n++).padStart(3,'0');while(S.produk.some(x=>(x.kd||'').toUpperCase()===k));return k};
